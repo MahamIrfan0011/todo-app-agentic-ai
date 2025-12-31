@@ -1,0 +1,36 @@
+[project]
+name = "in-memory-todo-app"
+version = "0.1.0"
+description = "A simple in-memory todo application for Phase I of Hackathon II"
+authors = [{ name = "MahamIrafm0011", email = "mahamirafm0011@example.com" }]
+dependencies = []
+requires-python = ">=3.13"
+
+[build-system]
+requires = ["uv>=0.1.0", "uv-build"]
+build-backend = "uv_build"
+
+
+[tool.uv]
+dev-dependencies = ["pytest>=8.0.0", "ruff>=0.1.0", "black>=24.0.0"]
+
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"] # Error, Flake8, Warnings, Isort
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "--strict-markers --strict-config"
+testpaths = [
+    "tests",
+]
+pythonpath = ["."]
