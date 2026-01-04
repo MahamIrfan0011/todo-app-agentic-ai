@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { api } from "@/lib/api";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 
@@ -10,89 +9,71 @@ interface Task {
   title: string;
   description?: string;
   completed: boolean;
-  created_at: string;
+  created_at: Date; // Change to Date object for in-memory handling
 }
+
+let nextId = 1; // Simple ID counter
 
 export default function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
+  // Load tasks from localStorage on initial render (optional persistence)
   useEffect(() => {
-    fetchTasks();
-  }, []); // Fetch tasks on component mount
-
-  const fetchTasks = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const data = await api.get("/tasks/");
-      setTasks(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch tasks.");
-    } finally {
-      setLoading(false);
+    const storedTasks = localStorage.getItem("tasks");
+    if (storedTasks) {
+      const parsedTasks: Task[] = JSON.parse(storedTasks).map((task: any) => ({
+        ...task,
+        created_at: new Date(task.created_at), // Convert string back to Date object
+      }));
+      setTasks(parsedTasks);
+      // Find the max ID to ensure nextId is unique
+      if (parsedTasks.length > 0) {
+        nextId = Math.max(...parsedTasks.map(task => task.id)) + 1;
+      }
     }
+  }, []);
+
+  // Save tasks to localStorage whenever tasks change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+
+  const handleAddTask = (title: string, description?: string) => {
+    const newTask: Task = {
+      id: nextId++,
+      title,
+      description,
+      completed: false,
+      created_at: new Date(),
+    };
+    setTasks((prevTasks) => [...prevTasks, newTask]);
   };
 
-  const handleAddTask = async (title: string, description?: string) => {
-    setError("");
-    try {
-      await api.post("/tasks/", { title, description });
-      fetchTasks();
-    } catch (err: any) {
-      setError(err.message || "Failed to add task.");
-    }
-  };
-
-  const handleUpdateTask = async (
+  const handleUpdateTask = (
     id: number,
     title: string,
     description?: string,
     completed?: boolean
   ) => {
-    setError("");
-    try {
-      await api.put(`/tasks/${id}`, { title, description, completed });
-      setEditingTask(null);
-      fetchTasks();
-    } catch (err: any) {
-      setError(err.message || "Failed to update task.");
-    }
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, title, description, completed } : task
+      )
+    );
+    setEditingTask(null);
   };
 
-  const handleDeleteTask = async (id: number) => {
-    setError("");
-    try {
-      await api.delete(`/tasks/${id}`);
-      fetchTasks();
-    } catch (err: any) {
-      setError(err.message || "Failed to delete task.");
-    }
+  const handleDeleteTask = (id: number) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   };
 
-  const handleToggleComplete = async (id: number, completed: boolean) => {
-    setError("");
-    try {
-      if (completed) {
-        await api.patch(`/tasks/${id}/complete`, {});
-      } else {
-        await api.patch(`/tasks/${id}/incomplete`, {});
-      }
-      fetchTasks();
-    } catch (err: any) {
-      setError(err.message || "Failed to toggle task completion.");
-    }
+  const handleToggleComplete = (id: number, completed: boolean) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => (task.id === id ? { ...task, completed } : task))
+    );
   };
-
-  if (loading) {
-    return <div className="text-center py-8">Loading tasks...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-8 text-red-600">{error}</div>;
-  }
 
   return (
     <div className="container mx-auto p-4">
@@ -119,7 +100,7 @@ export default function TaskList() {
             tasks.map((task) => (
               <TaskItem
                 key={task.id}
-              task={task}
+                task={task}
                 onEdit={() => setEditingTask(task)}
                 onDelete={handleDeleteTask}
                 onToggleComplete={handleToggleComplete}
@@ -131,3 +112,4 @@ export default function TaskList() {
     </div>
   );
 }
+
