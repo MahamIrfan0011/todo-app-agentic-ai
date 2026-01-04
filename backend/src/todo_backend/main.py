@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware # Import CORSMiddleware
 from sqlmodel import Session, select, SQLModel
 from contextlib import asynccontextmanager
 from typing import Annotated, List
@@ -24,9 +25,21 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins, adjust in production
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 @app.get("/")
 async def read_root():
     return {"message": "Welcome to the Todo Backend API!"}
+
+# Create an API router for /api/v1
+api_v1_router = APIRouter(prefix="/api/v1")
 
 # Pydantic model for token response
 class Token(SQLModel):
@@ -38,7 +51,7 @@ class UserCreate(SQLModel):
     username: str
     password: str
 
-@app.post("/auth/register", response_model=dict, status_code=status.HTTP_201_CREATED)
+@api_v1_router.post("/auth/register", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def register_user(user_create: UserCreate, session: Session = Depends(get_session)):
     user = session.exec(select(User).where(User.username == user_create.username)).first()
     if user:
@@ -55,7 +68,7 @@ async def register_user(user_create: UserCreate, session: Session = Depends(get_
     session.refresh(new_user)
     return {"message": "User registered successfully", "user_id": new_user.id}
 
-@app.post("/auth/login", response_model=Token)
+@api_v1_router.post("/auth/token", response_model=Token)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Session = Depends(get_session)
@@ -74,12 +87,12 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 # Protected route to get current user
-@app.get("/users/me/", response_model=User)
+@api_v1_router.get("/users/me/", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
     return current_user
 
 # Task CRUD operations
-@app.post("/tasks/", response_model=Task, status_code=status.HTTP_201_CREATED)
+@api_v1_router.post("/tasks/", response_model=Task, status_code=status.HTTP_201_CREATED)
 async def create_task(
     task_create: TaskCreate,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -91,7 +104,7 @@ async def create_task(
     session.refresh(new_task)
     return new_task
 
-@app.get("/tasks/", response_model=List[Task])
+@api_v1_router.get("/tasks/", response_model=List[Task])
 async def read_tasks(
     current_user: Annotated[User, Depends(get_current_user)],
     session: Session = Depends(get_session)
@@ -99,7 +112,7 @@ async def read_tasks(
     tasks = session.exec(select(Task).where(Task.owner_id == current_user.id)).all()
     return tasks
 
-@app.get("/tasks/{task_id}", response_model=Task)
+@api_v1_router.get("/tasks/{task_id}", response_model=Task)
 async def read_task(
     task_id: int,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -110,7 +123,7 @@ async def read_task(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     return task
 
-@app.put("/tasks/{task_id}", response_model=Task)
+@api_v1_router.put("/tasks/{task_id}", response_model=Task)
 async def update_task(
     task_id: int,
     task_update: TaskUpdate,
@@ -133,7 +146,7 @@ async def update_task(
     session.refresh(task)
     return task
 
-@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@api_v1_router.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_task(
     task_id: int,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -147,7 +160,7 @@ async def delete_task(
     session.commit()
     return
 
-@app.patch("/tasks/{task_id}/complete", response_model=Task)
+@api_v1_router.patch("/tasks/{task_id}/complete", response_model=Task)
 async def mark_task_complete(
     task_id: int,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -163,7 +176,7 @@ async def mark_task_complete(
     session.refresh(task)
     return task
 
-@app.patch("/tasks/{task_id}/incomplete", response_model=Task)
+@api_v1_router.patch("/tasks/{task_id}/incomplete", response_model=Task)
 async def mark_task_incomplete(
     task_id: int,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -178,3 +191,6 @@ async def mark_task_incomplete(
     session.commit()
     session.refresh(task)
     return task
+
+# Include the API router
+app.include_router(api_v1_router)
