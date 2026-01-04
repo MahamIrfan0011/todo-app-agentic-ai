@@ -87,7 +87,7 @@ export default function TaskList() {
         </h2>
         <TaskForm
           onSubmit={editingTask ? handleUpdateTask : handleAddTask}
-          initialData={editingTask}
+          initialData={editingTask || { title: "", description: "" }}
           onCancel={() => setEditingTask(null)}
         />
       </div>
