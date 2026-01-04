@@ -1,22 +1,26 @@
 // frontend/src/lib/api.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+import { getSession } from "next-auth/react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const api = {
-  get: async (path: string, token?: string) => request("GET", path, null, token),
-  post: async (path: string, body: any, token?: string) => request("POST", path, body, token),
-  put: async (path: string, body: any, token?: string) => request("PUT", path, body, token),
-  delete: async (path: string, token?: string) => request("DELETE", path, null, token),
-  patch: async (path: string, body: any, token?: string) => request("PATCH", path, body, token),
-  postForm: async (path: string, body: any, token?: string) => request("POST", path, body, token, "application/x-www-form-urlencoded"),
+  get: async (path: string) => request("GET", path, null),
+  post: async (path: string, body: any) => request("POST", path, body),
+  put: async (path: string, body: any) => request("PUT", path, body),
+  delete: async (path: string) => request("DELETE", path, null),
+  patch: async (path: string, body: any) => request("PATCH", path, body),
+  postForm: async (path: string, body: any) => request("POST", path, body, "application/x-www-form-urlencoded"),
 };
 
-async function request(method: string, path: string, body: any, token?: string, contentType: string = "application/json") {
+async function request(method: string, path: string, body: any, contentType: string = "application/json") {
   const headers: HeadersInit = {
     "Content-Type": contentType,
   };
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  // Get session to extract the access token
+  const session = await getSession();
+  if (session && session.accessToken) {
+    headers["Authorization"] = `Bearer ${session.accessToken}`;
   }
 
   let requestBody: BodyInit | undefined;

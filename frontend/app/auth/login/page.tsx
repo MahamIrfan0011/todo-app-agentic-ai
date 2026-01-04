@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -13,15 +13,18 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    try {
-      const success = await auth.login(username, password);
-      if (success) {
-        router.push("/");
-      } else {
-        setError("Invalid username or password");
-      }
-    } catch (err) {
-      setError("Failed to login. Please try again.");
+
+    const result = await signIn("credentials", {
+      redirect: false,
+      username: username,
+      password: password,
+    });
+
+    if (result?.error) {
+      setError("Invalid username or password");
+    } else {
+      router.push("/");
+      router.refresh(); // To ensure the session is updated
     }
   };
 

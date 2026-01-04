@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { signIn } from "next-auth/react";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -14,11 +14,36 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     try {
-      const response = await auth.register(username, password);
-      if (response && response.message === "User registered successfully") {
-        router.push("/auth/login");
+      // First, attempt to register the user with the backend
+      const registerResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        }
+      );
+
+      if (!registerResponse.ok) {
+        const errorData = await registerResponse.json();
+        setError(errorData.detail || "Failed to register. Please try again.");
+        return;
+      }
+
+      // If registration is successful, automatically sign in the user
+      const signInResult = await signIn("credentials", {
+        redirect: false,
+        username: username,
+        password: password,
+      });
+
+      if (signInResult?.error) {
+        setError("Registration successful, but failed to log in automatically. Please try logging in manually.");
       } else {
-        setError("Failed to register. Please try again.");
+        router.push("/");
+        router.refresh(); // To ensure the session is updated
       }
     } catch (err: any) {
       setError(err.message || "Failed to register. Please try again.");
