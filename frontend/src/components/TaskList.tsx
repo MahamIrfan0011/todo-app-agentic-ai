@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
 import { api } from "@/lib/api";
-import { auth } from "@/lib/auth"; // Added missing import
-import { useAuth } from "@/lib/AuthContext";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
 
@@ -17,31 +14,20 @@ interface Task {
 }
 
 export default function TaskList() {
-  const { isAuthenticated, logout } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const router = useRouter(); // Initialize useRouter
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchTasks();
-    } else {
-      setLoading(false);
-      router.push("/auth/login"); // Redirect to login if not authenticated
-    }
-  }, [isAuthenticated, router]);
+    fetchTasks();
+  }, []); // Fetch tasks on component mount
 
   const fetchTasks = async () => {
     setLoading(true);
     setError("");
     try {
-      const token = auth.getToken();
-      if (!token) {
-        throw new Error("No authentication token found.");
-      }
-      const data = await api.get("/tasks/", token);
+      const data = await api.get("/tasks/");
       setTasks(data);
     } catch (err: any) {
       setError(err.message || "Failed to fetch tasks.");
@@ -53,11 +39,7 @@ export default function TaskList() {
   const handleAddTask = async (title: string, description?: string) => {
     setError("");
     try {
-      const token = auth.getToken();
-      if (!token) {
-        throw new Error("No authentication token found.");
-      }
-      await api.post("/tasks/", { title, description }, token);
+      await api.post("/tasks/", { title, description });
       fetchTasks();
     } catch (err: any) {
       setError(err.message || "Failed to add task.");
@@ -72,15 +54,7 @@ export default function TaskList() {
   ) => {
     setError("");
     try {
-      const token = auth.getToken();
-      if (!token) {
-        throw new Error("No authentication token found.");
-      }
-      await api.put(
-        `/tasks/${id}`,
-        { title, description, completed },
-        token
-      );
+      await api.put(`/tasks/${id}`, { title, description, completed });
       setEditingTask(null);
       fetchTasks();
     } catch (err: any) {
@@ -91,11 +65,7 @@ export default function TaskList() {
   const handleDeleteTask = async (id: number) => {
     setError("");
     try {
-      const token = auth.getToken();
-      if (!token) {
-        throw new Error("No authentication token found.");
-      }
-      await api.delete(`/tasks/${id}`, token);
+      await api.delete(`/tasks/${id}`);
       fetchTasks();
     } catch (err: any) {
       setError(err.message || "Failed to delete task.");
@@ -105,14 +75,10 @@ export default function TaskList() {
   const handleToggleComplete = async (id: number, completed: boolean) => {
     setError("");
     try {
-      const token = auth.getToken();
-      if (!token) {
-        throw new Error("No authentication token found.");
-      }
       if (completed) {
-        await api.patch(`/tasks/${id}/complete`, {}, token);
+        await api.patch(`/tasks/${id}/complete`, {});
       } else {
-        await api.patch(`/tasks/${id}/incomplete`, {}, token);
+        await api.patch(`/tasks/${id}/incomplete`, {});
       }
       fetchTasks();
     } catch (err: any) {
@@ -132,12 +98,6 @@ export default function TaskList() {
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Your Tasks</h1>
-        <button
-          onClick={logout}
-          className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        >
-          Logout
-        </button>
       </div>
 
       <div className="mb-8">
@@ -159,7 +119,7 @@ export default function TaskList() {
             tasks.map((task) => (
               <TaskItem
                 key={task.id}
-                task={task}
+              task={task}
                 onEdit={() => setEditingTask(task)}
                 onDelete={handleDeleteTask}
                 onToggleComplete={handleToggleComplete}

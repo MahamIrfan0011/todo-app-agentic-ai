@@ -1,6 +1,4 @@
 // frontend/src/lib/api.ts
-import { getSession } from "next-auth/react";
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const api = {
@@ -16,12 +14,6 @@ async function request(method: string, path: string, body: any, contentType: str
   const headers: HeadersInit = {
     "Content-Type": contentType,
   };
-
-  // Get session to extract the access token
-  const session = await getSession();
-  if (session && session.accessToken) {
-    headers["Authorization"] = `Bearer ${session.accessToken}`;
-  }
 
   let requestBody: BodyInit | undefined;
   if (body) {
