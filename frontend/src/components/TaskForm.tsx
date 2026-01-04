@@ -17,7 +17,7 @@ export default function TaskForm({ onSubmit, initialData, onCancel }: TaskFormPr
     if (initialData) {
       setTitle(initialData.title);
       setDescription(initialData.description || "");
-      setCompleted(initialData.completed);
+      setCompleted(initialData.completed || false);
     } else {
       setTitle("");
       setDescription("");
