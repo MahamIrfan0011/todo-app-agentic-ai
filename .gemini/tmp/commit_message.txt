@@ -1,0 +1,21 @@
+feat(frontend): Enhance UI for a beautiful and attractive design
+
+This commit introduces significant UI enhancements to the frontend components to create a more beautiful and attractive user experience, leveraging Tailwind CSS.
+
+Key changes include:
+- **`frontend/src/components/TaskForm.tsx`:**
+  - Added `bg-white p-6 rounded-lg shadow-md` to the form for a card-like appearance.
+  - Improved input and textarea focus states and added rounded corners.
+  - Enhanced button styling with more subtle hover effects, rounded corners, and better alignment (`justify-end`).
+  - Adjusted checkbox styling for consistency.
+- **`frontend/src/components/TaskItem.tsx`:**
+  - Transformed list items into card-like elements (`bg-white p-4 my-2 rounded-lg shadow-sm border border-gray-200 hover:shadow-md`) for better visual separation and interaction feedback.
+  - Improved checkbox styling and added a simple "Created:" timestamp.
+  - Enhanced edit/delete buttons with better colors, hover effects, and rounded corners.
+  - Adjusted text styling for `title` and `description` to improve hierarchy and readability, including strikethrough for completed tasks.
+- **`frontend/src/components/TaskList.tsx`:**
+  - Modified the main container (`max-w-xl mx-auto p-4 sm:p-6 lg:p-8`) for better centering and responsiveness.
+  - Enhanced the main heading (`h1`) with a more prominent style (`text-4xl font-extrabold`).
+  - Improved the empty task list message (`text-lg italic`) for better visual appeal.
+
+These changes collectively aim to provide a modern, clean, and intuitive user interface for the todo application.

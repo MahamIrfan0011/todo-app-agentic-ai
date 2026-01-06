@@ -17,7 +17,8 @@ links:
   pr: null
 files_yaml:
   - backend/ (entire directory deleted)
-  - frontend/src/components/TaskList.tsx (modified for in-memory logic)
+  - frontend/src/components/TaskList.tsx (modified for in-memory logic and initialData prop fix)
+  - frontend/src/components/TaskForm.tsx (modified to fix controlled component warning)
   - frontend/src/lib/api.ts (deleted)
   - uv.lock (modified)
   - pyproject.toml (modified)
