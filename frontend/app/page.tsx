@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
 
@@ -56,8 +57,16 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50">
       <header className="bg-slate-900 shadow-md">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-slate-50">TaskTracker</h1>
+          <div className="flex space-x-4">
+            <Link href="/auth/login">
+              <button className="px-4 py-2 text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-sm">Login</button>
+            </Link>
+            <Link href="/auth/register">
+              <button className="px-4 py-2 text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-sm">Sign Up</button>
+            </Link>
+          </div>
         </div>
       </header>
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
