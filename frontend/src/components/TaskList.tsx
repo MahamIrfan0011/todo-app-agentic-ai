@@ -13,9 +13,10 @@ interface TaskListProps {
   tasks: Task[];
   onEdit: (task: Task) => void;
   onDelete: (id: number) => void;
+  isAuthenticated: boolean; // Add isAuthenticated prop
 }
 
-export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
+export default function TaskList({ tasks, onEdit, onDelete, isAuthenticated }: TaskListProps) {
   return (
     <div className="space-y-4">
       {tasks.length === 0 ? (
@@ -23,7 +24,7 @@ export default function TaskList({ tasks, onEdit, onDelete }: TaskListProps) {
       ) : (
         <ul className="divide-y divide-slate-700">
           {tasks.map((task) => (
-            <TaskItem key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} />
+            <TaskItem key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} isAuthenticated={isAuthenticated} />
           ))}
         </ul>
       )}

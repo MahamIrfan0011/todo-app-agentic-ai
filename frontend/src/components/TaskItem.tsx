@@ -11,9 +11,10 @@ interface TaskItemProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (id: number) => void;
+  isAuthenticated: boolean; // Add isAuthenticated prop
 }
 
-export default function TaskItem({ task, onEdit, onDelete }: TaskItemProps) {
+export default function TaskItem({ task, onEdit, onDelete, isAuthenticated }: TaskItemProps) {
   return (
     <li
       className={`p-4 my-2 rounded-lg shadow-sm flex items-center justify-between transition-colors duration-200 ${
@@ -42,12 +43,14 @@ export default function TaskItem({ task, onEdit, onDelete }: TaskItemProps) {
         <button
           onClick={() => onEdit(task)}
           className="px-4 py-2 text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-sm transition-colors duration-200"
+          disabled={!isAuthenticated} // Disable if not authenticated
         >
           Edit
         </button>
         <button
           onClick={() => onDelete(task.id)}
           className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-sm transition-colors duration-200"
+          disabled={!isAuthenticated} // Disable if not authenticated
         >
           Delete
         </button>
