@@ -4,28 +4,41 @@ import jwt from 'jsonwebtoken';
 import { users } from '../store';
 
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('Missing JWT_SECRET environment variable');
-}
 
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET is not set in the environment variables.');
+      return NextResponse.json(
+        { error: 'Internal Server Error: JWT secret not configured.' },
+        { status: 500 }
+      );
+    }
+
     // Find the user
-    const user = users.find(user => user.email === email);
+    const user = users.find((user) => user.email === email);
     if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      );
     }
 
     // Compare passwords
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      );
     }
 
     // Create a JWT
-    const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ email: user.email }, JWT_SECRET, {
+      expiresIn: '1h',
+    });
 
     // Create the response
     const response = NextResponse.json({ message: 'Login successful', token });
