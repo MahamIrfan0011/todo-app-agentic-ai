@@ -64,8 +64,7 @@ export default function LoginPage() {
               Password
             </label>
             <input
-              type="text"
-              onFocus={(e) => e.target.type = 'password'}
+              type="password"
               id="password"
               className="mt-1 block w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 sm:text-sm text-slate-50"
               value={password}
@@ -73,7 +72,8 @@ export default function LoginPage() {
               required
               autoComplete="new-password"
               key="password-input"
-            />          </div>
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}

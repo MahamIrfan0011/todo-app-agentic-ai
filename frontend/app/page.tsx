@@ -1,58 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import TaskForm from "@/components/TaskForm";
 import TaskList from "@/components/TaskList";
+import ChatWindow from "@/components/ChatWindow";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTask } from "@/contexts/TaskContext";
 
-interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  completed: boolean;
-}
+// ... other imports ...
 
 export default function Home() {
   const { user, loading, logout } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, fetchTasks, addTask, updateTask, deleteTask } = useTask();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [filter, setFilter] = useState('all');
 
   const isAuthenticated = !!user;
 
-  const handleAddTask = (id: number | null, title: string, description?: string, completed: boolean = false) => {
-    if (!isAuthenticated) {
-      alert("You must be logged in to add tasks."); // This will be handled better within TaskForm
-      return;
-    }
-    if (id !== null) {
-      setTasks(tasks.map((task) => (task.id === id ? { ...task, title, description, completed } : task)));
+  // Fetch tasks from the API using the context (handled by useEffect in TaskContext now)
+  // This useEffect is redundant here if TaskContext already handles it on mount/user change
+  // useEffect(() => {
+  //   fetchTasks();
+  // }, [isAuthenticated, fetchTasks]);
+
+  const handleAddTask = async (id: number | null, title: string, description?: string, completed: boolean = false) => {
+    if (!isAuthenticated) return;
+
+    if (id !== null && editingTask) {
+      await updateTask(id, { title, description, completed });
       setEditingTask(null);
     } else {
-      const newTask: Task = {
-        id: Date.now(),
-        title,
-        description,
-        completed,
-      };
-      setTasks([...tasks, newTask]);
+      await addTask({ title, description });
     }
   };
 
-  const handleDeleteTask = (id: number) => {
-    if (!isAuthenticated) {
-      alert("You must be logged in to delete tasks.");
-      return;
-    }
-    setTasks(tasks.filter((task) => task.id !== id));
+  const handleDeleteTask = async (id: number) => {
+    if (!isAuthenticated) return;
+    await deleteTask(id);
   };
 
   const handleEditTask = (task: Task) => {
-    if (!isAuthenticated) {
-      alert("You must be logged in to edit tasks.");
-      return;
-    }
+    if (!isAuthenticated) return;
     setEditingTask(task);
   };
 
@@ -87,14 +76,15 @@ export default function Home() {
             {isAuthenticated ? (
               <>
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-500 text-white text-sm font-bold">
-  {user?.email?.[0]?.toUpperCase()}
-</div>
+                  {user?.email?.[0]?.toUpperCase()}
+                </div>
                 <button
                   onClick={logout}
                   className="px-4 py-2 text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                 >
                   Logout
-                </button>              </>
+                </button>
+              </>
             ) : (
               <Link href="/auth/login">
                 <button className="px-4 py-2 text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-sm">
@@ -106,21 +96,16 @@ export default function Home() {
         </div>
       </header>
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <div className="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold mb-4 text-slate-50">{editingTask ? "Edit Task" : "Add a New Task"}</h2>
-              {!isAuthenticated && (
-                <p className="text-slate-300 mb-4">Please <Link href="/auth/login" className="underline">log in</Link> to add or manage tasks.</p>
-              )}
-              <TaskForm
-                onSubmit={handleAddTask}
-                initialData={editingTask}
-                onCancel={editingTask ? handleCancelEdit : undefined}
-                isAuthenticated={isAuthenticated}
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8"> {/* Changed to lg:grid-cols-2 */}
+          <div className="lg:col-span-1"> {/* Left section: TaskList */}
+            <div className="bg-slate-800 p-6 rounded-lg shadow-lg w-full">
+              <h2 className="text-xl font-semibold mb-4 text-slate-50">Tasks</h2>
+              <TaskList tasks={filteredTasks} onEdit={handleEditTask} onDelete={handleDeleteTask} isAuthenticated={isAuthenticated} />
             </div>
-            <div className="bg-slate-800 p-6 rounded-lg shadow-lg mt-8">
+          </div>
+          <div className="lg:col-span-1 flex flex-col"> {/* Right section: Filters and ChatWindow (now smaller) */}
+            {/* Filter Tasks */}
+            <div className="bg-slate-800 p-6 rounded-lg shadow-lg">
               <h2 className="text-xl font-semibold mb-4 text-slate-50">Filter Tasks</h2>
               <div className="flex space-x-4">
                 <button onClick={() => setFilter('all')} className={`px-4 py-2 text-sm font-medium rounded-lg shadow-sm ${filter === 'all' ? 'bg-teal-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>All</button>
@@ -128,12 +113,11 @@ export default function Home() {
                 <button onClick={() => setFilter('completed')} className={`px-4 py-2 text-sm font-medium rounded-lg shadow-sm ${filter === 'completed' ? 'bg-teal-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}>Completed</button>
               </div>
             </div>
-          </div>
-          <div className="lg:col-span-2">
-            <div className="bg-slate-800 p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl font-semibold mb-4 text-slate-50">Tasks</h2>
-              <TaskList tasks={filteredTasks} onEdit={handleEditTask} onDelete={handleDeleteTask} isAuthenticated={isAuthenticated} />
-            </div>
+            {isAuthenticated && (
+              <div className="bg-slate-800 p-6 rounded-lg shadow-lg mt-8 ml-auto w-full"> {/* Changed width to w-full */}
+                <ChatWindow />
+              </div>
+            )}
           </div>
         </div>
       </main>

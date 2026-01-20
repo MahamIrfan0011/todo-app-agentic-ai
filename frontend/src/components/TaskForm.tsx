@@ -106,4 +106,3 @@ export default function TaskForm({ onSubmit, initialData, onCancel, isAuthentica
     </form>
   );
 }
-

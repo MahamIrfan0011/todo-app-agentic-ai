@@ -1,6 +1,8 @@
 "use client";
 
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ChatProvider } from '@/contexts/ChatContext';
+import { TaskProvider } from '@/contexts/TaskContext';
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -29,7 +31,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          {children}
+          <TaskProvider>
+            <ChatProvider>
+              {children}
+            </ChatProvider>
+          </TaskProvider>
         </AuthProvider>
       </body>
     </html>

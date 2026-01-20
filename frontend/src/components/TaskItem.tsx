@@ -39,22 +39,6 @@ export default function TaskItem({ task, onEdit, onDelete, isAuthenticated }: Ta
           </p>
         )}
       </div>
-      <div className="flex items-center space-x-3">
-        <button
-          onClick={() => onEdit(task)}
-          className="px-4 py-2 text-sm font-medium text-white bg-teal-500 hover:bg-teal-600 rounded-lg shadow-sm transition-colors duration-200"
-          disabled={!isAuthenticated} // Disable if not authenticated
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete(task.id)}
-          className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-sm transition-colors duration-200"
-          disabled={!isAuthenticated} // Disable if not authenticated
-        >
-          Delete
-        </button>
-      </div>
     </li>
   );
 }
