@@ -1,13 +1,6 @@
 // File-based store for tasks
+import { Task } from '@/types';
 import fs from 'fs/promises';
-import path from 'path';
-
-export interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  completed: boolean;
-}
 
 type DbData = Record<string, Task[]>;
 

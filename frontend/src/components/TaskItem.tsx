@@ -1,11 +1,6 @@
 "use client";
 
-interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  completed: boolean;
-}
+import { Task } from "@/types";
 
 interface TaskItemProps {
   task: Task;

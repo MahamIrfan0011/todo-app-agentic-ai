@@ -7,6 +7,7 @@ import TaskList from "@/components/TaskList";
 import ChatWindow from "@/components/ChatWindow";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTask } from "@/contexts/TaskContext";
+import { Task } from '@/types';
 
 // ... other imports ...
 

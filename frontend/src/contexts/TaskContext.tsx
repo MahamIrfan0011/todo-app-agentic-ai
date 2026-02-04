@@ -1,15 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
+import { Task } from '@/types';
 import { useAuth } from './AuthContext';
-
-// This is the same interface as in page.tsx
-interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  completed: boolean;
-}
 
 interface TaskContextType {
   tasks: Task[];

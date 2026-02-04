@@ -1,14 +1,8 @@
 "use client";
 
+import { Task } from "@/types";
 import Link from "next/link";
 import TaskItem from "./TaskItem";
-
-interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  completed: boolean;
-}
 
 interface TaskListProps {
   tasks: Task[];
