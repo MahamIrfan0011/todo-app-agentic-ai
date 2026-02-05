@@ -1,7 +1,7 @@
 // API route for the AI-powered chatbot
 import { NextRequest, NextResponse } from 'next/server';
 import store from '../tasks/store'; // Import the default export
-import { Task } from '../tasks/store'; // Explicitly import the Task interface
+import { Task } from '@/types';
 
 // Helper to extract task title from a command
 function extractTaskTitle(message: string): string {

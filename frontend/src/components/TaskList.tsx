@@ -40,7 +40,7 @@ export default function TaskList({ tasks, onEdit, onDelete, isAuthenticated }: T
             ) : (
               <ul className="divide-y divide-slate-700 border border-slate-700 rounded-md">
                 {incompleteTasks.map((task) => (
-                  <TaskItem key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} isAuthenticated={isAuthenticated} isCompleted={task.completed} />
+                  <TaskItem key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} isAuthenticated={isAuthenticated} />
                 ))}
               </ul>
             )}
@@ -53,7 +53,7 @@ export default function TaskList({ tasks, onEdit, onDelete, isAuthenticated }: T
             ) : (
               <ul className="divide-y divide-slate-700 border border-slate-700 rounded-md">
                 {completedTasks.map((task) => (
-                  <TaskItem key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} isAuthenticated={isAuthenticated} isCompleted={task.completed} />
+                  <TaskItem key={task.id} task={task} onEdit={onEdit} onDelete={onDelete} isAuthenticated={isAuthenticated} />
                 ))}
               </ul>
             )}

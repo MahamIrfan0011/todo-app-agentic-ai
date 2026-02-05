@@ -1,6 +1,7 @@
 // File-based store for tasks
 import { Task } from '@/types';
 import fs from 'fs/promises';
+import path from 'path';
 
 type DbData = Record<string, Task[]>;
 
