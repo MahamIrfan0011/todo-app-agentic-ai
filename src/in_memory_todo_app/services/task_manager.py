@@ -1,17 +1,19 @@
+import datetime
 from typing import List, Optional
-from in_memory_todo_app.models.task import Task
+from ..models.task import Task
 
 class TaskManager:
     def __init__(self):
         self._tasks: List[Task] = []
         self._next_id = 1
 
-    def add_task(self, title: str, description: str = "") -> Task:
+    def add_task(self, title: str, description: Optional[str] = None) -> Task:
         """Adds a new task to the list."""
         if not title:
             raise ValueError("Task title cannot be empty.")
-        task = Task(title, description)
+        task = Task(id=self._next_id, title=title, description=description, created_at=datetime.datetime.now(datetime.timezone.utc))
         self._tasks.append(task)
+        self._next_id += 1 # Increment _next_id after assigning it
         return task
 
     def get_task_by_id(self, task_id: int) -> Optional[Task]:
