@@ -1,9 +1,23 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .services.task_manager import TaskManager
 from .models.task import Task
 from typing import List, Dict
 
 app = FastAPI()
+
+origins = [
+    "*" # Allows all origins, for testing. In production, specify your frontend URL(s).
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 task_manager = TaskManager()
 
 @app.get("/")
