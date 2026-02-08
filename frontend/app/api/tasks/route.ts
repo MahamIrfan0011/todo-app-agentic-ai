@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import store from './store'; // Import the default export
+ import store from './store'; // Import the default export
+const BACKEND_URL = "https://maham001-backend.hf.space";
 
 // Get all tasks for a user
 export async function GET(req: NextRequest) {
