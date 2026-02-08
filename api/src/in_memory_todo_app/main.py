@@ -1,16 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 import os
+
+
+
 
 from .services.task_manager import TaskManager
 from .models.task import Task
 from typing import List, Dict
 
-from .chat_router import router as chat_router
+
 
 app = FastAPI()
-
-app.include_router(chat_router, prefix="/api")
 
 origins = [
     "http://localhost:3000", # Allow frontend development server

@@ -6,7 +6,7 @@ import path from 'path';
 type DbData = Record<string, Task[]>;
 
 // Path to our simple JSON database
-const dbPath = path.resolve(process.cwd(), 'app/api/.data', 'db.json');
+const dbPath = path.resolve('/tmp', 'db.json');
 
 // Helper to read the entire database
 async function readDb(): Promise<DbData> {
