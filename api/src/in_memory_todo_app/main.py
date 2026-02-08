@@ -1,17 +1,27 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+import os
 
 from .services.task_manager import TaskManager
 from .models.task import Task
 from typing import List, Dict
 
+from .chat_router import router as chat_router
+
 app = FastAPI()
+
+app.include_router(chat_router, prefix="/api")
 
 origins = [
     "http://localhost:3000", # Allow frontend development server
     "https://maham001-backend.hf.space" # Allow self for potential redirects/internal calls if necessary.
 ]
+
+# Add VERCEL_URL to allowed origins if it exists
+vercel_url = os.environ.get('VERCEL_URL')
+if vercel_url:
+    origins.append(f"https://{vercel_url}")
+
 
 app.add_middleware(
     CORSMiddleware,
